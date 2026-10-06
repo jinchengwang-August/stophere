@@ -4,9 +4,9 @@
 
 Bayesian optimization (BO) searches for an input
 
-\[
+$$
 x^*\in\arg\max_{x\in\mathcal X} f(x)
-\]
+$$
 
 when evaluating the unknown objective `f` is expensive. An evaluation may be a
 physical experiment, simulation, or model-training run. BO is useful when we
@@ -14,9 +14,9 @@ can afford tens or hundreds of evaluations, not millions.
 
 An observation is
 
-\[
+$$
 y_i=f(x_i)+\epsilon_i,\qquad \epsilon_i\sim\mathcal N(0,\sigma_n^2).
-\]
+$$
 
 The objective is the real input-output relationship. The surrogate is a model
 of that relationship; it is not the objective itself.
@@ -44,20 +44,20 @@ These roles must remain separate:
 
 A Gaussian process (GP) places a probability distribution over functions:
 
-\[
+$$
 f\sim\mathcal{GP}(m(x),k(x,x')).
-\]
+$$
 
 Conditioning on observations produces, for any candidate `x`, a posterior mean
 and variance:
 
-\[
+$$
 \mu(x)=k_{xX}(K+\sigma_n^2I)^{-1}y,
-\]
+$$
 
-\[
+$$
 \sigma^2(x)=k(x,x)-k_{xX}(K+\sigma_n^2I)^{-1}k_{Xx}.
-\]
+$$
 
 The mean is the model's current prediction. The variance records uncertainty
 under the model assumptions. It is usually small near observations and large
@@ -68,9 +68,9 @@ far from them.
 A kernel defines how information transfers between locations. For the RBF
 kernel,
 
-\[
+$$
 k(x,x')=\sigma_f^2\exp\left[-\frac{(x-x')^2}{2\ell^2}\right].
-\]
+$$
 
 - Small `lengthscale` `ℓ`: the model permits rapid changes and observations
   influence only nearby points.
@@ -88,12 +88,12 @@ this interpretation is conditional on scaling and model correctness.
 GP hyperparameters are commonly fitted by maximizing the log marginal
 likelihood:
 
-\[
+$$
 \log p(y\mid X,\theta)=
 -\tfrac12y^T K_\theta^{-1}y
 -\tfrac12\log|K_\theta|
 -\tfrac n2\log(2\pi).
-\]
+$$
 
 The first term rewards data fit; the log-determinant penalizes overly flexible
 covariance explanations. Numerical optimization selects `θ` (length scales,
@@ -117,10 +117,10 @@ It balances high predicted value (exploitation) and high uncertainty
 
 For noiseless maximization, expected improvement over best value `f_best` is
 
-\[
+$$
 EI(x)=(\mu-f_{best})\Phi(z)+\sigma\phi(z),\quad
 z=\frac{\mu-f_{best}}{\sigma}.
-\]
+$$
 
 The first term rewards predicted improvement; the second rewards uncertainty.
 
@@ -129,15 +129,15 @@ The first term rewards predicted improvement; the second rewards uncertainty.
 In the noiseless pilot, a transparent recommendation is the best evaluated
 point:
 
-\[
+$$
 \hat x_t\in\arg\max_{x_i\in D_t} f(x_i).
-\]
+$$
 
 Simple regret is
 
-\[
+$$
 r_t=f^*-f(\hat x_t).
-\]
+$$
 
 The recommendation is acceptable for tolerance `ε` when `r_t≤ε`. In a real
 experiment `f*` is unknown; benchmark truth is used only by the evaluator, not
@@ -188,4 +188,3 @@ latent function values. **Incumbent:** current best reference value.
 **Acquisition value:** utility of evaluating a candidate next. **Simple regret:**
 value lost by the final recommendation. **Calibration:** whether stated
 uncertainties match observed frequencies.
-
