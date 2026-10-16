@@ -16,7 +16,7 @@ def fixed_lengthscale_model(x, y, lengthscale):
                                       lengthscale_constraint=GreaterThan(1e-4)))
     model = SingleTaskGP(x, y, covar_module=kernel)
     model.covar_module.base_kernel.lengthscale = lengthscale
-    model.covar_module.raw_lengthscale.requires_grad_(False)
+    model.covar_module.base_kernel.raw_lengthscale.requires_grad_(False)
     model.eval()
     return model
 

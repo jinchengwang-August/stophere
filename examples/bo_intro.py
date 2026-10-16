@@ -1,13 +1,18 @@
 """One-dimensional closed-loop Bayesian optimization with BoTorch.
 
 The dense objective curve is for plotting only. The optimizer receives only
-values returned by evaluate_objective at selected points.
+values returned by objective at selected points.
 """
 
+import csv
+import json
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import torch
+import botorch
+import gpytorch
 from botorch.acquisition.analytic import LogExpectedImprovement
 from botorch.fit import fit_gpytorch_mll
 from botorch.models import SingleTaskGP
@@ -31,12 +36,12 @@ def fit_model(train_x: torch.Tensor, train_y: torch.Tensor) -> SingleTaskGP:
     return model
 
 
-def propose(model: SingleTaskGP, best_f: float) -> torch.Tensor:
+def propose(model: SingleTaskGP, best_f: float) -> tuple[torch.Tensor, float]:
     acq = LogExpectedImprovement(model=model, best_f=best_f)
-    x_next, _ = optimize_acqf(
+    x_next, log_ei = optimize_acqf(
         acq, bounds=BOUNDS, q=1, num_restarts=12, raw_samples=256
     )
-    return x_next.detach()
+    return x_next.detach(), float(log_ei.detach())
 
 
 def run_bo(seed: int = 17, n_steps: int = 6):
@@ -47,9 +52,19 @@ def run_bo(seed: int = 17, n_steps: int = 6):
 
     for step in range(n_steps):
         model = fit_model(train_x, train_y)
-        x_next = propose(model, float(train_y.max()))
+        best_before = float(train_y.max())
+        x_next, log_ei = propose(model, best_before)
         y_next = objective(x_next)  # one new expensive evaluation
-        history.append((x_next.item(), y_next.item(), train_y.max().item()))
+        history.append(
+            {
+                "step": step + 1,
+                "x_next": x_next.item(),
+                "y_next": y_next.item(),
+                "best_before": best_before,
+                "best_after": max(best_before, y_next.item()),
+                "log_ei": log_ei,
+            }
+        )
         train_x = torch.cat([train_x, x_next])
         train_y = torch.cat([train_y, y_next])
 
@@ -78,13 +93,75 @@ def make_figure(train_x, train_y, model, output_path: Path):
     fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=180)
+    plt.close(fig)
     return fig
+
+
+def make_progress_figure(history, output_path: Path):
+    steps = [0] + [row["step"] for row in history]
+    best = [history[0]["best_before"]] + [row["best_after"] for row in history]
+    fig, ax = plt.subplots(figsize=(7.2, 4.2))
+    ax.step(steps, best, where="post", color="#2364aa", linewidth=2)
+    ax.scatter(steps, best, color="#2364aa", zorder=3)
+    ax.set(
+        xlabel="BO iteration after the initial design",
+        ylabel="best observed objective",
+        title="Best-so-far value is monotone, but flat steps do not prove completion",
+    )
+    ax.grid(alpha=0.25)
+    fig.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=180)
+    plt.close(fig)
+    return fig
+
+
+def save_results(train_x, train_y, history, result_dir: Path, seed: int = 17):
+    if not history:
+        raise ValueError("history must contain at least one BO iteration")
+    result_dir.mkdir(parents=True, exist_ok=True)
+    with (result_dir / "bo_intro_trace.csv").open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(history[0]))
+        writer.writeheader()
+        writer.writerows(history)
+
+    grid = torch.linspace(0, 1, 20001, dtype=DTYPE).unsqueeze(-1)
+    true_values = objective(grid).squeeze(-1)
+    true_idx = int(true_values.argmax())
+    rec_idx = int(train_y.squeeze(-1).argmax())
+    summary = {
+        "seed": seed,
+        "initial_observations": 3,
+        "bo_iterations": len(history),
+        "objective_evaluations": int(train_x.shape[0]),
+        "recommendation_x": float(train_x[rec_idx]),
+        "recommendation_y": float(train_y[rec_idx]),
+        "dense_reference_x": float(grid[true_idx]),
+        "dense_reference_y": float(true_values[true_idx]),
+        "dense_reference_simple_regret": float(true_values[true_idx] - train_y[rec_idx]),
+        "versions": {
+            "python": sys.version.split()[0],
+            "torch": torch.__version__,
+            "botorch": botorch.__version__,
+            "gpytorch": gpytorch.__version__,
+        },
+        "note": "The dense reference grid is used only for retrospective teaching and scoring, never to choose x_next.",
+    }
+    (result_dir / "bo_intro_summary.json").write_text(
+        json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+    )
+    return summary
 
 
 if __name__ == "__main__":
     x, y, fitted_model, trace = run_bo()
-    for i, (x_next, y_next, previous_best) in enumerate(trace, start=1):
-        print(f"step={i:02d} x_next={x_next:.5f} y={y_next:.5f} "
-              f"previous_best={previous_best:.5f}")
+    for row in trace:
+        print(
+            f"step={row['step']:02d} x_next={row['x_next']:.5f} "
+            f"y={row['y_next']:.5f} best_after={row['best_after']:.5f}"
+        )
     make_figure(x, y, fitted_model, Path("assets/bo_intro_result.png"))
+    make_progress_figure(trace, Path("assets/bo_intro_progress.png"))
+    summary = save_results(x, y, trace, Path("results/phase1"))
+    print(json.dumps(summary, indent=2))
 

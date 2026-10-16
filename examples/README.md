@@ -16,3 +16,14 @@ The second example is intentionally diagnostic: it demonstrates that posterior
 uncertainty depends on the assumed kernel and length scale. A smooth-looking,
 low-uncertainty posterior is not automatically correct.
 
+Running `bo_intro.py` also writes:
+
+- `assets/bo_intro_result.png` — final posterior and evaluated points;
+- `assets/bo_intro_progress.png` — best-so-far trajectory;
+- `results/phase1/bo_intro_trace.csv` — one row per BO decision; and
+- `results/phase1/bo_intro_summary.json` — recommendation, retrospective
+  regret, evaluation count, and package versions.
+
+The committed notebook has been executed, so GitHub displays all six visual
+iterations without requiring a local environment.
+
