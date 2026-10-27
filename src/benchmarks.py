@@ -1,4 +1,4 @@
-test"""Deterministic maximization benchmarks on the unit hypercube.
+"""Deterministic maximization benchmarks on the unit hypercube.
 
 Every objective accepts a point of shape (d,) or a batch (n, d). The latent
 objective is noise-free; add measurement noise in the runner, not here.
