@@ -1,62 +1,37 @@
-# Phase 1: Bayesian Optimization Primer
+# Phase 1: BO foundations and worked example
 
-This branch completes the first learning milestone in `workplan.md`:
+Phase 1 establishes the shared concepts and a reproducible one-dimensional Bayesian Optimization (BO) loop. It is a learning and implementation milestone—not evidence that any acquisition strategy or stopping rule is generally reliable.
 
-- `docs/reading_list.md` — annotated ten-paper reading list.
-- `docs/bo_primer.md` — compact guide to BO, Gaussian processes, acquisition,
-  recommendation, and stopping.
-- `docs/bo_gp_stopping_rules_study_guide.md` — detailed study guide with a
-  worked GP calculation, hyperparameter failure modes, model diagnostics,
-  stopping rules, and the next implementation plan.
-- `docs/bo_basics_cn.md` — Chinese explanation of the core concepts, formulas,
-  hyperparameters, BoTorch steps, and project logic.
-- `docs/phase1_results.md` — completion matrix, verified numerical result,
-  limitations, and questions carried into Phase 2.
-- `docs/bo_concept_map.md` — a visual map and a worked numerical example.
-- `docs/handwritten_note_english.md` — cleaned English notes based on the
-  original handwritten study outline.
-- `examples/01_bo_intro.ipynb` — visual BoTorch closed-loop example.
-- `examples/bo_intro.py` — script version of the same experiment.
-- `examples/02_lengthscale_sensitivity.py` — model-misspecification example.
-- `tests/test_bo_intro.py` — inexpensive correctness checks.
-- `results/phase1/` — exact trace, numerical summary, and verified versions.
-- `assets/` — regenerated figures for the BO run and length-scale diagnostic.
-- `presentations/bo_project_phase1_bilingual.pptx` — ten-slide project overview
-  with English and Chinese speaker notes.
-- `presentations/bo_project_bilingual_speaker_guide.docx` — page-by-page
-  English and Chinese speaking script.
+## Materials
 
-## Recommended reading order
+- docs/bo_concept_map.md — term relationships and a worked numerical example.
+- docs/bo_primer.md — introduction to BO, Gaussian processes, acquisition, recommendation, and stopping.
+- docs/bo_gp_stopping_rules_study_guide.md — detailed GP calculation, hyperparameters, diagnostics, and stopping rules.
+- docs/reading_list.md — annotated ten-paper reading list.
+- docs/phase1_results.md — verified output, limitations, and questions passed to the next phase.
+- docs/handwritten_note_english.md — cleaned English outline of the handwritten notes.
+- examples/01_bo_intro.ipynb and examples/bo_intro.py — visual notebook and runnable script for the same BO loop.
+- examples/02_lengthscale_sensitivity.py — diagnostic showing how GP length-scale assumptions change predictions.
+- tests/test_bo_intro.py — correctness checks.
+- results/phase1/ and assets/ — saved trace, summary, and regenerated figures.
+- presentations/ — project slide decks and the bilingual speaker guide.
 
-1. Start with `docs/bo_concept_map.md` for the relationship among the main
-   terms.
-2. Read `docs/bo_primer.md` for the Phase 1 introduction.
-3. Use `docs/bo_gp_stopping_rules_study_guide.md` for the numerical example,
-   hyperparameter effects, diagnostics, and stopping-rule details.
-4. Use `docs/bo_basics_cn.md` for the corresponding Chinese explanation.
-5. Review `docs/reading_list.md` when a concept requires its original source.
-6. Run `examples/01_bo_intro.ipynb`, then use
-   `examples/02_lengthscale_sensitivity.py` as a misspecification stress test.
-7. Read `docs/phase1_results.md` for the verified output and Phase 2 handoff.
+## Suggested order
 
-## Quick start
+1. Read docs/bo_concept_map.md, then docs/bo_primer.md.
+2. Work through docs/bo_gp_stopping_rules_study_guide.md and consult docs/reading_list.md for original sources.
+3. Run examples/bo_intro.py and examples/02_lengthscale_sensitivity.py.
+4. Review docs/phase1_results.md for numerical results and limitations.
 
-```bash
+## Run
+
+~~~bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements-phase1.txt
+python -m pip install -r requirements-phase1.txt
 python examples/bo_intro.py
 python examples/02_lengthscale_sensitivity.py
-pytest -q
-```
+python -m pytest -q
+~~~
 
-The toy objective is only evaluated at points selected by the optimizer. Its
-dense curve is used for visualization and retrospective scoring, not by BO.
-
-## Verified completion
-
-The fixed-seed run uses 3 initial points and 6 BO iterations. It returns
-`x = 0.7494546` with a dense-reference simple regret of approximately
-`0.0004961`. All 6 Phase 1 tests pass in the recorded environment. See
-`docs/phase1_results.md` for the complete interpretation and limitations.
-
+The fixed-seed example uses three initial observations and six LogEI decisions (nine objective evaluations total). It returns x=0.7494546, with dense-grid reference simple regret about 0.0004961. The early best-so-far plateau later improved, so stagnation alone is not proof that the search is done. See docs/phase1_results.md for what this does—and does not—show.
