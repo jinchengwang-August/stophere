@@ -14,7 +14,18 @@
 - [Benchmark catalog, API, and validation notes](benchmarks.md)
 - [Benchmark implementation](../src/benchmarks.py)
 - [Benchmark tests](../tests/test_benchmarks.py)
+- [Auxiliary MRF tests](../tests/test_mrf_benchmark.py)
 - [Landscape gallery generator](../examples/phase2_gallery.py)
+
+## Phase 3 — controlled characterization screen
+
+- [Methods, MRF explanation, results, and limitations](phase3_characterization.md)
+- [Reproducible experiment matrix](../experiments/characterization_matrix.py)
+- [Per-system/configuration summary](../results/phase3/characterization_matrix/summary.csv)
+- [Paired changes versus nominal GP](../results/phase3/characterization_matrix/comparison_deltas.csv)
+- [Stopping-rule outcomes](../results/phase3/characterization_matrix/stopping_rules.csv)
+- [Full evaluation trajectories](../results/phase3/characterization_matrix/trajectories.csv)
+- [Summary plot](../results/phase3/characterization_matrix/characterization_summary.png)
 
 ## Project navigation
 

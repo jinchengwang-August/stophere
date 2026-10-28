@@ -4,7 +4,7 @@
 
 Phase 2 builds a controlled set of landscapes for the project question: do Bayesian optimization stopping rules remain dependable when the objective changes, or do they stop too early on specific shapes? This phase constructs and validates the test problems; comparison of acquisition and stopping policies is later work.
 
-The bank has 24 cases: eleven landscape families in both 2D and 3D, plus Branin (2D) and Hartmann-3 (3D). Every objective is a noise-free maximization function on the unit cube [0, 1]^d. Measurement noise should be added by a separate observation wrapper, never by changing the latent function.
+The core continuous bank has 24 cases: eleven landscape families in both 2D and 3D, plus Branin (2D) and Hartmann-3 (3D). Every core objective is a noise-free maximization function on the unit cube [0, 1]^d. Measurement noise should be added by a separate observation wrapper, never by changing the latent function. A separate 3x3 binary Ising Markov random field (MRF) is included as an **auxiliary discrete system**, not counted among the 24 core continuous cases.
 
 | Name | Main property tested | Best-known value |
 | --- | --- | --- |
@@ -21,6 +21,20 @@ The bank has 24 cases: eleven landscape families in both 2D and 3D, plus Branin 
 | grf_rough | Lower-smoothness Matérn-like field | Numerical reference |
 | branin | Standard 2D multimodal anchor | -0.397887, analytic |
 | hartmann3 | Standard 3D multimodal anchor | Numerical reference |
+
+## Auxiliary structured-discrete system: Ising MRF
+
+`get_benchmark("mrf_ising_3x3", 9)` creates a fixed 3x3 binary pairwise MRF. Its nine variables are spins `s_i ∈ {-1,+1}` (encoded as inputs `x_i ∈ {0,1}`), and its log-potential score is
+
+```text
+score(s) = Σ_(i,j) J_ij s_i s_j + Σ_i h_i s_i.
+```
+
+The pair terms encode graph edges; mixed-sign couplings include frustrated loops, and small node fields break some symmetries. The corresponding probability model is proportional to `exp(score(s))`; its MAP state is therefore the maximizer of this score. This benchmark is deterministic once constructed. All `2^9 = 512` configurations are enumerable, so the MAP reference is exact and regret can be scored without giving unqueried labels to the optimizer.
+
+An MRF is a probability model with conditional-independence structure: a node is independent of non-neighbors once its neighbors are known. BO is not being used to infer the MRF distribution here; it is used to search the expensive configuration-to-score function. This is a discrete, structured extension and should be reported separately from the 2D/3D continuous cases. In particular, an ordinary RBF kernel on the binary vector does not automatically exploit the MRF graph topology.
+
+The MRF checks live in `tests/test_mrf_benchmark.py`; the broader GP/stopping-rule screen is documented in `docs/phase3_characterization.md` and implemented by `experiments/characterization_matrix.py`.
 
 ## API and design decisions
 

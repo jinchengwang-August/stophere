@@ -4,6 +4,8 @@
 
 Determine when Bayesian optimization (BO) can stop with an acceptably good solution, how many evaluations different stopping rules save, and which conditions cause them to stop too early.
 
+**Success is defined by a careful, reproducible characterization of performance and failure conditions—not by proposing a novel or unusually complex optimizer.**
+
 Use **BoTorch** to compare acquisition strategies and stopping criteria on controlled target functions. Produce a reproducible GitHub repository containing explanations, code, examples, configurations, and results.
 
 The central question is:
@@ -120,6 +122,8 @@ Organize functions by the properties they test. Implement or reuse the following
 
 The first eleven families in both dimensions, plus the two anchors, give **24 cases**.
 
+As an explicitly separate extension, include a small binary pairwise Ising MRF so the study can characterize a structured discrete search space as well. Do not pool its raw regret with continuous-function results. Document its graph, couplings, fields, finite state catalogue, exact MAP reference, and the fact that a generic kernel does not exploit graph structure unless designed to do so.
+
 ### Implementation requirements
 
 - [ ] Use a common input domain of `[0, 1]^d`, with documented transformations to native domains.
@@ -138,6 +142,8 @@ Document the field generator and its approximation. A finite spectral approximat
 **Deliverables:** `src/benchmarks.py`, `tests/test_benchmarks.py`, `docs/benchmarks.md`, and a reproducible gallery example.
 
 ## Phase 3: Implement five acquisition strategies
+
+The initial controlled screen is recorded in `docs/phase3_characterization.md` and implemented in `experiments/characterization_matrix.py`. It uses a transparent NumPy exact-GP prototype, one-factor-at-a-time kernel/acquisition/hyperparameter contrasts, four online stopping rules, and a random-search reference across nine systems. Treat its results as descriptive; it is not a substitute for the planned BoTorch reproduction or larger threshold/seed sweeps.
 
 Use the same surrogate specification, initial design, domain, evaluation budget, and recommendation rule across methods.
 
