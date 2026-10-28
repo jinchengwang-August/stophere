@@ -4,7 +4,7 @@
 
 Project success means **reliable characterization**, not novelty or maximum difficulty: identify when BO works, when it fails, and what quality/cost trade-off a stopping rule creates. This is an exploratory, fixed-hyperparameter NumPy exact-GP screen, not a final BoTorch study.
 
-Run locally with [36mMPLBACKEND=Agg python -m experiments.characterization_matrix[0m from the repository root.
+Run locally with MPLBACKEND=Agg python -m experiments.characterization_matrix from the repository root.
 
 ## Design
 
@@ -12,7 +12,7 @@ The matrix contains nine finite search systems: smooth 2D, anisotropic 2D, rippl
 
 The single nominal setup (RBF GP-UCB, length scale multiplier 1, β=2) is the baseline. One-factor contrasts test Matérn 3/2 and 5/2 kernels, length scales 0.5× and 2×, UCB β=0.5 and 8, EI and PI, plus random search. One extra Matérn-3/2 ×2 length-scale interaction checks a combined setting. A separate condition adds Gaussian measurement noise with SD 3% of that catalogue's objective range and supplies the GP the matching noise variance. This is exact-GP Python/NumPy code; parameters are fixed, not fitted.
 
-Four stopping rules are replayed on each completed trajectory: (1) full 24-evaluation budget; (2) patience-5, no improvement exceeding 1% of recent observed response SD; (3) stop when maximum catalogue posterior 95% UCB is within 0.05 observed SD of the incumbent; (4) stop when the maximum marginal probability of beating the incumbent by 0.01 observed SD is ≤0.05. Thresholds use only observations/model, not the oracle optimum. The last two are diagnostics, not guarantees. False stop means normalized regret >0.05 at termination.
+Four stopping rules are replayed on each completed trajectory, including random search; a fixed RBF GP is refit to observed points for model-based stop diagnostics: (1) full 24-evaluation budget; (2) patience-5, no improvement exceeding 1% of recent observed response SD; (3) stop when maximum catalogue posterior 95% UCB is within 0.05 observed SD of the incumbent; (4) stop when the maximum marginal probability of beating the incumbent by 0.01 observed SD is ≤0.05. Thresholds use only observations/model, not the oracle optimum. The last two are diagnostics, not guarantees. False stop means normalized regret >0.05 at termination.
 
 ## Results
 
