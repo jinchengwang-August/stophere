@@ -26,7 +26,9 @@ The gallery script writes images under `results/phase2/gallery/`.
 Generated figures currently included on this branch:
 
 - `results/phase2/gallery/benchmark_gallery_2d.png`
+- `results/phase2/gallery/benchmark_gallery_3d_slices_x3_025.png`
 - `results/phase2/gallery/benchmark_gallery_3d_slices.png`
+- `results/phase2/gallery/benchmark_gallery_3d_slices_x3_075.png`
 
 Phase 2 verification: `python -m pytest -q tests/test_benchmarks.py tests/test_mrf_benchmark.py` — **33 passed**.
 

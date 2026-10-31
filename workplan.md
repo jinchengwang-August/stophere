@@ -126,14 +126,14 @@ As an explicitly separate extension, include a small binary pairwise Ising MRF s
 
 ### Implementation requirements
 
-- [ ] Use a common input domain of `[0, 1]^d`, with documented transformations to native domains.
-- [ ] Express all objectives as maximization problems.
-- [ ] Document output scaling, parameters, and known or numerical reference optima.
-- [ ] Keep the latent function separate from the observation-noise wrapper.
-- [ ] Support batched evaluation and an explicit dimension argument.
-- [ ] Keep Branin and Hartmann-3 as fixed-dimensional anchors.
-- [ ] Generate 2D plots and several informative slices for 3D functions.
-- [ ] Check known values, dimensional consistency, and repeatability.
+- [x] Use a common input domain of `[0, 1]^d`, with documented transformations to native domains.
+- [x] Express all objectives as maximization problems.
+- [x] Document output scaling, parameters, and known or numerical reference optima.
+- [x] Keep the latent function separate from the observation-noise wrapper.
+- [x] Support batched evaluation and an explicit dimension argument.
+- [x] Keep Branin and Hartmann-3 as fixed-dimensional anchors.
+- [x] Generate 2D plots and several informative slices for 3D functions.
+- [x] Check known values, dimensional consistency, and repeatability (33 Phase 2 tests passed).
 
 For Gaussian random fields, generate a field once and hold it fixed throughout a run. A **field seed** defines the landscape; an **optimizer seed** defines an optimization attempt. Do not resample the latent field at each query.
 
