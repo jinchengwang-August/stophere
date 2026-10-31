@@ -18,6 +18,8 @@
 - [Benchmark tests](../tests/test_benchmarks.py)
 - [Auxiliary MRF tests](../tests/test_mrf_benchmark.py)
 - [Landscape gallery generator](../examples/phase2_gallery.py)
+- [2D benchmark gallery](../results/phase2/gallery/benchmark_gallery_2d.png)
+- [3D slices gallery](../results/phase2/gallery/benchmark_gallery_3d_slices.png)
 
 ## Phase 3–4 — exploratory NumPy characterization prototype
 

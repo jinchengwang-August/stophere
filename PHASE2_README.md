@@ -23,6 +23,13 @@ python -m examples.phase2_gallery
 
 The gallery script writes images under `results/phase2/gallery/`.
 
+Generated figures currently included on this branch:
+
+- `results/phase2/gallery/benchmark_gallery_2d.png`
+- `results/phase2/gallery/benchmark_gallery_3d_slices.png`
+
+Phase 2 verification: `python -m pytest -q tests/test_benchmarks.py tests/test_mrf_benchmark.py` — **33 passed**.
+
 ## Scope and next step
 
 Phase 2 establishes test landscapes; the Ising MRF is explicitly an auxiliary discrete case, not one of the 24 continuous cases. Phase 2 does not claim that one BO setup or stopping rule is reliable. The NumPy screen and its limits are documented in `docs/phase3_characterization.md`; it is a useful prototype but does not count as completing Peter's planned Phase 3. The proper next step is a small BoTorch acquisition-policy implementation, followed by the separately specified Phase 4 stopping rules.
