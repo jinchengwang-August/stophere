@@ -143,7 +143,7 @@ Document the field generator and its approximation. A finite spectral approximat
 
 ## Phase 3: Implement five acquisition strategies
 
-The initial controlled screen is recorded in `docs/phase3_characterization.md` and implemented in `experiments/characterization_matrix.py`. It uses a transparent NumPy exact-GP prototype, one-factor-at-a-time kernel/acquisition/hyperparameter contrasts, four online stopping rules, and a random-search reference across nine systems. Treat its results as descriptive; it is not a substitute for the planned BoTorch reproduction or larger threshold/seed sweeps.
+An exploratory NumPy screen is recorded in `docs/phase3_characterization.md` and implemented in `experiments/characterization_matrix.py`. It combines partial Phase 3/4 ideas: one-factor-at-a-time kernel/acquisition/hyperparameter contrasts, simplified stopping proxies, and a random-search reference across nine systems. Treat its results as descriptive. It does **not** complete this planned Phase 3: the five BoTorch acquisition methods below are still the intended deliverable.
 
 Use the same surrogate specification, initial design, domain, evaluation budget, and recommendation rule across methods.
 

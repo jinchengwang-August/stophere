@@ -1,5 +1,7 @@
 # Documentation index
 
+- [Roadmap and status](roadmap_and_status.md) — maps completed and exploratory work to Peter's original phase plan.
+
 ## Phase 1 — foundations and worked example
 
 - [BO primer](bo_primer.md)
@@ -17,9 +19,9 @@
 - [Auxiliary MRF tests](../tests/test_mrf_benchmark.py)
 - [Landscape gallery generator](../examples/phase2_gallery.py)
 
-## Phase 3 — controlled characterization screen
+## Phase 3–4 — exploratory NumPy characterization prototype
 
-- [Methods, MRF explanation, results, and limitations](phase3_characterization.md)
+- [Methods, MRF explanation, results, and limitations](phase3_characterization.md); this prototype does not complete the planned BoTorch phases.
 - [Reproducible experiment matrix](../experiments/characterization_matrix.py)
 - [Per-system/configuration summary](../results/phase3/characterization_matrix/summary.csv)
 - [Paired changes versus nominal GP](../results/phase3/characterization_matrix/comparison_deltas.csv)

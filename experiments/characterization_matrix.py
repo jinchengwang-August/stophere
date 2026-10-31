@@ -94,6 +94,21 @@ def posterior(train_x: np.ndarray, train_y: np.ndarray, candidates: np.ndarray,
     return mu, sigma, y_mean, y_scale
 
 
+def stopping_posterior(train_x: np.ndarray, train_y: np.ndarray, candidates: np.ndarray,
+                       system: System, noise_fraction: float, value_range: float):
+    """Shared diagnostic GP for stopping rules, independent of search config.
+
+    The acquisition policy may use a deliberately varied kernel/length scale.
+    Stop diagnostics instead use the system's declared nominal RBF length scale
+    for every policy. The observation-noise likelihood remains matched to the
+    data-generating condition when noise is present.
+    """
+    y_scale = max(float(train_y.std()), 1e-8)
+    normalized_noise_sd = noise_fraction * value_range / y_scale
+    return posterior(train_x, train_y, candidates, "rbf", system.base_lengthscale,
+                     normalized_noise_sd)
+
+
 def choose_next(mu: np.ndarray, sigma: np.ndarray, best_y: float,
                 acquisition: str, beta: float, used: np.ndarray) -> int:
     safe_sigma = np.maximum(sigma, 1e-12)
@@ -153,11 +168,14 @@ def run_trajectory(system: System, config: tuple, seed: int) -> list[dict]:
     trace = []
 
     def observe(n_eval: int):
-        mu, sigma, _, y_scale = posterior(train_x, train_y, points, kernel, ls,
-                                           noise_fraction * value_range / max(float(train_y.std()), 1e-8))
+        mu, sigma, _, _ = posterior(train_x, train_y, points, kernel, ls,
+                                     noise_fraction * value_range / max(float(train_y.std()), 1e-8))
+        stop_mu, stop_sigma, _, y_scale = stopping_posterior(
+            train_x, train_y, points, system, noise_fraction, value_range
+        )
         best_y = float(train_y.max())
-        ucb_gap = max(float(np.max(mu + 1.96 * sigma) - best_y), 0.0)
-        p_improve = float(np.max(normal_cdf((mu - best_y - 0.01 * y_scale) / np.maximum(sigma, 1e-12))))
+        ucb_gap = max(float(np.max(stop_mu + 1.96 * stop_sigma) - best_y), 0.0)
+        p_improve = float(np.max(normal_cdf((stop_mu - best_y - 0.01 * y_scale) / np.maximum(stop_sigma, 1e-12))))
         best_latent = float(latent[np.flatnonzero(np.all(points == train_x[np.argmax(train_y)], axis=1))[0]])
         regret = max(best_ref - best_latent, 0.0)
         trace.append({
@@ -301,7 +319,7 @@ def make_plot(summary: list[dict], stop_summary: list[dict], path: Path):
     h1, l1 = axes[1].get_legend_handles_labels()
     h2, l2 = ax2.get_legend_handles_labels()
     axes[1].legend(h1 + h2, l1 + l2, loc="upper left")
-    fig.suptitle("Phase 3: controlled BO characterization pilot", y=1.02)
+    fig.suptitle("Phase 3–4 prototype: controlled BO characterization screen", y=1.02)
     fig.tight_layout()
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=160, bbox_inches="tight")

@@ -1,10 +1,12 @@
-# Phase 3 — BO and stopping-rule characterization
+# Phase 3–4 prototype — BO and stopping-rule characterization
+
+> **Plan alignment:** This is an exploratory NumPy screening prototype spanning parts of Peter's planned Phase 3 (acquisition policies) and Phase 4 (stopping rules). It is not completion of planned Phase 3: it does not use BoTorch and includes only UCB, EI, and PI (not Thompson sampling or MES). Its stopping criteria are also simplified proxies, not the five fully specified Phase 4 rules. See [roadmap and status](roadmap_and_status.md) for the phase-by-phase mapping and next steps.
 
 ## Research goal
 
 The project's success criterion is **reliable characterization**, not algorithmic novelty or maximum difficulty. The practical question is: under which objective shapes, GP assumptions, acquisition settings, and stopping rules does BO reach a useful solution—and when does it miss or stop too early?
 
-This experiment is an initial, controlled screening study. It is not evidence that one optimizer is universally best, and it is not a replacement for an eventual BoTorch implementation.
+This experiment is an initial, controlled screening study. It is not evidence that one optimizer is universally best, and it is not a replacement for the planned BoTorch implementation.
 
 ## Experimental matrix
 
@@ -22,7 +24,7 @@ All GPs are exact, fixed-hyperparameter NumPy implementations using the same can
 
 ### Stopping rules
 
-Each full, shared trajectory is replayed through four online stopping rules. This includes random search as a search policy; for model-based stop diagnostics, a fixed RBF GP is refit to the queried observations. Since the prefix up to a stopping point is the same as the corresponding full run, this estimates what each rule would have saved without changing the earlier choices.
+Each full trajectory is replayed through four online stopping rules. This includes random search as a search policy. To make stopping diagnostics comparable across search configurations, they use a **shared diagnostic GP**: fixed RBF kernel and each system's declared nominal length scale, refit to the observations available at that step. The acquisition policy itself still uses its configured kernel and length scale. The noise likelihood is matched to the observation-noise condition. Since the prefix up to a stopping point is the same as the corresponding full run, this estimates what each rule would have saved without changing the earlier choices. This is a prototype convention, not Peter's final Phase 4 common-EI / confidence-gap / posterior-regret specification.
 
 1. `fixed_budget`: always use all 24 evaluations.
 2. `patience_5`: stop after at least five post-initial observations if the incumbent has not improved by more than 1% of the recent observed response standard deviation over the last five evaluations.
@@ -33,7 +35,7 @@ The latter two are diagnostics, not formal guarantees: the UCB gap depends on th
 
 ## Reading the results
 
-`summary.csv` reports final normalized regret by system/configuration over five seeds. `comparison_deltas.csv` reports paired seed-wise changes against the nominal configuration within each system (negative is better). `stopping_rules.csv` records each counterfactual stop prefix, false stops, and evaluations saved. `trajectories.csv` contains the step-by-step raw data. The plot summarizes kernel-family and stopping-rule comparisons; consult CSVs for per-system variation rather than relying on pooled averages.
+`summary.csv` reports final normalized regret by system/configuration over five seeds. `comparison_deltas.csv` reports paired seed-wise changes against the nominal configuration within each system (negative is better). `stopping_rules.csv` records each counterfactual stop prefix, false stops, and evaluations saved. `trajectories.csv` contains the step-by-step raw data, including the diagnostic GP's kernel and length scale for auditability. The plot summarizes kernel-family and stopping-rule comparisons; consult CSVs for per-system variation rather than relying on pooled averages.
 
 ## Pilot results
 
@@ -82,10 +84,12 @@ Per-system nominal regret demonstrates why characterization matters: smooth 2D =
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Fixed budget | 0.129 | 69.3% | 0.0% | 0.00 | 24.00 |
 | Patience-5 | 0.165 | 56.1% | 43.9% | 10.57 | 13.43 |
-| Global UCB gap ≤0.05 SD | 0.142 | 66.1% | 33.9% | 3.84 | 20.16 |
-| Max marginal P(improve) ≤0.05 | 0.145 | 65.2% | 34.8% | 4.80 | 19.20 |
+| Global UCB gap ≤0.05 SD | 0.134 | 67.8% | 32.2% | 2.42 | 21.58 |
+| Max marginal P(improve) ≤0.05 | 0.137 | 66.5% | 33.5% | 3.27 | 20.73 |
 
-In this pilot, patience saves the most calls but often stops too early. The posterior-based rules save fewer calls and still false-stop about one third of runs. In the MRF subset, patience saves 9.9 calls on average but has a 73% false-stop rate; global UCB gap saves 3.1 calls with 27% false stops. This is not yet a calibrated stopping-rule recommendation: the threshold and rule definitions need a sensitivity sweep, and the GP's uncertainty is not guaranteed to be calibrated.
+In this pilot, patience saves the most calls but often stops too early. The posterior-based rules save fewer calls and still false-stop about one third of runs. Across all 60 MRF matrix trajectories (12 configurations × 5 seeds), patience saves 9.9 calls on average with a 73.3% false-stop rate; global UCB gap saves 2.55 calls with a 23.3% false-stop rate; maximum marginal P(improve) saves 3.75 calls with a 30.0% false-stop rate. This is not yet a calibrated stopping-rule recommendation: the threshold and rule definitions need a sensitivity sweep, and the GP's uncertainty is not guaranteed to be calibrated.
+
+The shared diagnostic-GP convention was made explicit and enforced in the current run. Search configurations retain their own model for acquisition decisions; stopping summaries use the same nominal RBF length scale for a given system. This changes the stopping metrics relative to the earlier run, while the search trajectories and fixed-budget regret results remain unchanged. The change makes cross-configuration stopping comparisons cleaner, but does not make the simplified diagnostics equivalent to the planned Phase 4 rules.
 
 ## Limitations and next steps
 
@@ -95,6 +99,7 @@ In this pilot, patience saves the most calls but often stops too early. The post
 - The synthetic noise case assumes a known, matched likelihood variance. Add repeated noisy measurements and a deliberately misspecified-noise contrast before drawing robustness conclusions.
 - Current code uses generic Euclidean kernels on an encoded binary MRF and does not exploit its graph. A graph/Hamming-aware covariance is a future comparison, not part of this result.
 - Stopping thresholds are plausible pilot values, not calibrated universal defaults. Report the regret/savings/false-stop frontier over multiple thresholds, and include per-system and paired-seed outcomes.
-- Reproduce the core matrix in BoTorch and independently validate a few trajectories before increasing budgets or making project-level claims.
+- Treat this as a mixed Phase 3–4 prototype, then begin the actual planned Phase 3: reproduce and validate the five acquisition strategies in BoTorch before increasing budgets or making project-level claims.
+- Implement the exact planned Phase 4 stopping definitions (including a common EI diagnostic, `max U(x) - L(x_hat)`, and joint-posterior probability of acceptable regret), keeping them separate from acquisition decisions.
 
 The desired deliverable is a map of **conditions and failure modes**: objective × model assumption × acquisition/hyperparameter × stopping rule → quality, reliability, and evaluation cost.

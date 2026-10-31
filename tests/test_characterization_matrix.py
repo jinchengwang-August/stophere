@@ -11,7 +11,9 @@ from experiments.characterization_matrix import (
     catalogue,
     configuration_rows,
     kernel_matrix,
+    posterior,
     run_trajectory,
+    stopping_posterior,
     stopping_summaries,
 )
 
@@ -37,6 +39,19 @@ def test_kernels_are_symmetric_positive_semidefinite_on_simple_inputs():
         matrix = kernel_matrix(x, x, kind, 0.25)
         assert np.allclose(matrix, matrix.T)
         assert np.linalg.eigvalsh(matrix).min() > -1e-8
+
+
+def test_stopping_diagnostic_uses_the_declared_common_rbf_model():
+    system = next(s for s in SYSTEMS if s.name == "smooth_2d")
+    points = catalogue(system)
+    train_x = points[[0, 100, 300]]
+    train_y = np.array([0.1, 0.7, 0.4])
+    mu, sigma, _, _ = stopping_posterior(
+        train_x, train_y, points, system, noise_fraction=0.0, value_range=1.0
+    )
+    expected = posterior(train_x, train_y, points, "rbf", system.base_lengthscale, 0.0)
+    assert np.allclose(mu, expected[0])
+    assert np.allclose(sigma, expected[1])
 
 
 def test_small_trajectory_and_stopping_rules_are_bounded():
