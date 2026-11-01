@@ -35,7 +35,7 @@ The MRF's first standalone pilot is retained under `results/phase3/mrf_bo_pilot/
 | `tests/` | Scientific and software correctness checks |
 | `results/phase1/` | Worked-example trace and summary |
 | `results/phase3/` | Prototype matrix outputs and the earlier MRF pilot |
-| `presentations/` | Project slide decks and speaker guide |
+| `presentations/` | English project presentation |
 
 Generated Python caches and local test caches are ignored by Git and should not be committed. Keep the two MRF output sets: they document different protocols rather than duplicated runs.
 
