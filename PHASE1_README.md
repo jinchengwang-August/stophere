@@ -14,7 +14,7 @@ Phase 1 establishes the shared concepts and a reproducible one-dimensional Bayes
 - examples/02_lengthscale_sensitivity.py — diagnostic showing how GP length-scale assumptions change predictions.
 - tests/test_bo_intro.py — correctness checks.
 - results/phase1/ and assets/ — saved trace, summary, and regenerated figures.
-- presentations/ — project slide decks and the bilingual speaker guide.
+- presentations/ — the English Phase 1 project presentation.
 
 ## Suggested order
 

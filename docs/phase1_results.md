@@ -12,12 +12,11 @@ stopping rule is already reliable.
 | Task 1.1: ten-paper annotated reading list | [`reading_list.md`](reading_list.md) | Complete |
 | Task 1.2: introductory guide | [`bo_primer.md`](bo_primer.md) | Complete |
 | Supporting concept map and worked calculation | [`bo_concept_map.md`](bo_concept_map.md), [`bo_gp_stopping_rules_study_guide.md`](bo_gp_stopping_rules_study_guide.md) | Complete |
-| Chinese fundamentals guide | [`bo_basics_cn.md`](bo_basics_cn.md) | Complete |
 | Task 1.3: visual BoTorch example | [`01_bo_intro.ipynb`](../examples/01_bo_intro.ipynb) | Complete and executed |
 | Script version and saved artifacts | [`bo_intro.py`](../examples/bo_intro.py), [`results/phase1`](../results/phase1) | Complete |
 | Hyperparameter misspecification example | [`02_lengthscale_sensitivity.py`](../examples/02_lengthscale_sensitivity.py) | Complete |
 | Automated checks | [`test_bo_intro.py`](../tests/test_bo_intro.py) | 6 tests passing |
-| Presentation and speaking guide | [`presentations`](../presentations) | Complete |
+| English project presentation | [`presentations`](../presentations) | Complete |
 
 ## Reproducible toy experiment
 

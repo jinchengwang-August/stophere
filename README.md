@@ -13,7 +13,7 @@ This project studies when Bayesian optimization can stop while still returning a
 
 - `examples/bo_intro.py` and `examples/01_bo_intro.ipynb`: Phase 1 one-dimensional BO loop.
 - `examples/02_lengthscale_sensitivity.py`: Phase 1 GP misspecification example.
-- `src/benchmarks.py`: Phase 2 target functions, all maximization on normalized inputs.
+- `src/benchmarks.py`: Phase 2 continuous target functions plus the separately reported Ising MRF.
 - `tests/`: correctness checks for the BO example and benchmark bank.
 - `results/phase1/`: saved Phase 1 trace and numerical summary.
 - `results/phase2/gallery/`: generated benchmark plots (recreate using the Phase 2 README).
@@ -28,4 +28,4 @@ python -m pytest -q
 python -m examples.phase2_gallery
 ~~~
 
-The gallery visualizes test-function landscapes; it is not an optimization result. Phase 2 prepares controlled test problems. Comparing acquisition strategies and stopping rules is later work, not a result established by the benchmark tests.
+The gallery visualizes test-function landscapes; it is not an optimization result. This branch ends at Phase 2. Acquisition-policy and stopping-rule experiments belong on later phase branches.

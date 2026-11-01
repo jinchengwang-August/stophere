@@ -6,6 +6,7 @@ Random-field instances are constructed once and remain fixed.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+from itertools import product
 from typing import Callable
 import numpy as np
 Array = np.ndarray
@@ -18,6 +19,7 @@ class Benchmark:
     description: str
     reference_x: Array | None = None
     reference_value: float | None = None
+    discrete: bool = False
 
     def __call__(self, x: Array) -> Array | float:
         points = np.asarray(x, dtype=float)
@@ -30,6 +32,8 @@ class Benchmark:
             raise ValueError("inputs must be finite")
         if np.any((points < 0.0) | (points > 1.0)):
             raise ValueError("inputs must lie in [0, 1]^d")
+        if self.discrete and not np.all(np.isin(points, (0.0, 1.0))):
+            raise ValueError("discrete MRF states must contain only 0 or 1")
         values = np.asarray(self.evaluate(points), dtype=float).reshape(-1)
         return float(values[0]) if single else values
 
@@ -63,6 +67,42 @@ def _random_field(d: int, seed: int, lengthscale: float, nu: float, n_features: 
 
 def get_benchmark(name: str, dimension: int, *, field_seed: int = 0, n_features: int = 256) -> Benchmark:
     """Create one named benchmark. All inputs are normalized to [0, 1]^d."""
+    if name == "mrf_ising_3x3":
+        if dimension != 9:
+            raise ValueError("mrf_ising_3x3 has nine binary variables (dimension=9)")
+        # A fixed 3x3 pairwise Markov random field (Ising form). Mixed-sign
+        # couplings create frustrated loops; small fields break some ties.
+        edges = np.array([
+            [0, 1, 1.0], [1, 2, 1.0],
+            [3, 4, 1.0], [4, 5, -1.0],
+            [6, 7, 1.0], [7, 8, 1.0],
+            [0, 3, 1.0], [3, 6, -1.0],
+            [1, 4, 1.0], [4, 7, 1.0],
+            [2, 5, 1.0], [5, 8, 1.0],
+        ], dtype=float)
+        fields = np.array([0.10, -0.08, 0.05, -0.04, 0.12, -0.10, 0.07, 0.02, -0.06])
+
+        def score(states: Array) -> Array:
+            spins = 2.0 * states - 1.0
+            pair_terms = edges[:, 2] * spins[:, edges[:, 0].astype(int)] * spins[:, edges[:, 1].astype(int)]
+            return pair_terms.sum(axis=1) + spins @ fields
+
+        states = np.asarray(list(product((0.0, 1.0), repeat=9)), dtype=float)
+        values = score(states)
+        best = int(np.argmax(values))
+        return Benchmark(
+            name=name,
+            dimension=9,
+            evaluate=score,
+            description=(
+                "A fixed 3x3 binary Ising Markov random field. The objective is its "
+                "pairwise log-potential score; mixed-sign couplings create frustrated "
+                "loops. All 2^9 states are enumerable for exact MAP scoring."
+            ),
+            reference_x=states[best].copy(),
+            reference_value=float(values[best]),
+            discrete=True,
+        )
     _check_dimension(dimension)
     d = dimension
     center = np.linspace(0.32, 0.68, d)
