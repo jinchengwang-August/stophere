@@ -8,31 +8,32 @@ This branch adds a reproducible set of synthetic objective functions for studyin
 - `tests/test_benchmarks.py`: checks for dimensions, bounds, deterministic behavior, finite outputs, and known optima.
 - `docs/benchmarks.md`: benchmark catalog and usage notes.
 - `examples/phase2_gallery.py`: reproducibly generates 2D contour and 3D slice visualizations.
-- `src/benchmarks.py`: also exposes `mrf_ising_3x3`, a separately reported 3x3 binary Ising MRF.
-- `tests/test_mrf_benchmark.py`: validates the binary state space and exact MAP reference.
+- `src/benchmarks.py` also exposes an auxiliary 3x3 binary Ising MRF (`mrf_ising_3x3`), added as a separate structured-discrete extension and scored separately from the core 24 continuous cases; see `docs/benchmarks.md`.
+- `tests/test_mrf_benchmark.py`: validates the discrete state space and exact MAP reference.
+- Phase 3 work is intentionally kept out of the Phase 2 file list. See `PHASE3_README.md` and `docs/roadmap_and_status.md` on the Phase 3 branch.
 
 ## Run it
 
 Install the project dependencies from `requirements-phase1.txt`, then from the repository root run:
 
 ```bash
-python -m pytest -q tests/test_benchmarks.py tests/test_mrf_benchmark.py
+python -m pytest tests/test_benchmarks.py
 python -m examples.phase2_gallery
 ```
 
 The gallery script writes images under `results/phase2/gallery/`.
 
-Generated figures on this branch:
+Generated figures currently included on this branch:
 
 - `results/phase2/gallery/benchmark_gallery_2d.png`
 - `results/phase2/gallery/benchmark_gallery_3d_slices_x3_025.png`
 - `results/phase2/gallery/benchmark_gallery_3d_slices.png`
 - `results/phase2/gallery/benchmark_gallery_3d_slices_x3_075.png`
 
-Phase 2 verification record: `python -m pytest -q tests/test_benchmarks.py tests/test_mrf_benchmark.py` — **33 passed**.
+Phase 2 verification: `python -m pytest -q tests/test_benchmarks.py tests/test_mrf_benchmark.py` — **33 passed**.
 
 ## Scope and next step
 
-Phase 2 establishes test landscapes; it does not claim that one BO setup or stopping rule is reliable. The Ising MRF is an auxiliary discrete case, not one of the 24 continuous cases. Phase 3 should compare acquisition strategies across these validated systems under a common protocol.
+Phase 2 establishes test landscapes; the Ising MRF is explicitly an auxiliary discrete case, not one of the 24 continuous cases. Phase 2 does not claim that one BO setup or stopping rule is reliable. The NumPy screen and its limits are documented in `docs/phase3_characterization.md`; it is a useful prototype but does not count as completing Peter's planned Phase 3. The proper next step is a small BoTorch acquisition-policy implementation, followed by the separately specified Phase 4 stopping rules.
 
 Everything on this branch is additive; `main` is unchanged by the Phase 2 work.

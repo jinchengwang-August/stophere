@@ -1,5 +1,7 @@
 # Documentation index
 
+- [Roadmap and status](roadmap_and_status.md) — maps completed and exploratory work to Peter's original phase plan.
+
 ## Phase 1 — foundations and worked example
 
 - [BO primer](bo_primer.md)
@@ -17,9 +19,19 @@
 - [Auxiliary MRF tests](../tests/test_mrf_benchmark.py)
 - [Landscape gallery generator](../examples/phase2_gallery.py)
 - [2D benchmark gallery](../results/phase2/gallery/benchmark_gallery_2d.png)
-- [3D slices, x3 = 0.25](../results/phase2/gallery/benchmark_gallery_3d_slices_x3_025.png)
-- [3D slices, x3 = 0.50](../results/phase2/gallery/benchmark_gallery_3d_slices.png)
-- [3D slices, x3 = 0.75](../results/phase2/gallery/benchmark_gallery_3d_slices_x3_075.png)
+- [3D slices gallery, x3 = 0.25](../results/phase2/gallery/benchmark_gallery_3d_slices_x3_025.png)
+- [3D slices gallery, x3 = 0.50](../results/phase2/gallery/benchmark_gallery_3d_slices.png)
+- [3D slices gallery, x3 = 0.75](../results/phase2/gallery/benchmark_gallery_3d_slices_x3_075.png)
+
+## Phase 3 — exploratory NumPy characterization prototype
+
+- [Methods, MRF explanation, results, and limitations](phase3_characterization.md); this prototype does not complete the planned BoTorch Phase 3.
+- [Reproducible Phase 3 experiment](../experiments/phase3_characterization.py)
+- [Per-system/configuration summary](../results/phase3/characterization/summary.csv)
+- [Paired changes versus nominal GP](../results/phase3/characterization/comparison_deltas.csv)
+- [Exploratory stopping diagnostics](../results/phase3/characterization/stopping_rules.csv)
+- [Full evaluation trajectories](../results/phase3/characterization/trajectories.csv)
+- [Summary plot](../results/phase3/characterization/characterization_summary.png)
 
 ## Project navigation
 

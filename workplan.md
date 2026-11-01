@@ -4,6 +4,8 @@
 
 Determine when Bayesian optimization (BO) can stop with an acceptably good solution, how many evaluations different stopping rules save, and which conditions cause them to stop too early.
 
+**Success is defined by a careful, reproducible characterization of performance and failure conditions—not by proposing a novel or unusually complex optimizer.**
+
 Use **BoTorch** to compare acquisition strategies and stopping criteria on controlled target functions. Produce a reproducible GitHub repository containing explanations, code, examples, configurations, and results.
 
 The central question is:
@@ -120,16 +122,18 @@ Organize functions by the properties they test. Implement or reuse the following
 
 The first eleven families in both dimensions, plus the two anchors, give **24 cases**.
 
+As an explicitly separate extension, include a small binary pairwise Ising MRF so the study can characterize a structured discrete search space as well. Do not pool its raw regret with continuous-function results. Document its graph, couplings, fields, finite state catalogue, exact MAP reference, and the fact that a generic kernel does not exploit graph structure unless designed to do so.
+
 ### Implementation requirements
 
-- [ ] Use a common input domain of `[0, 1]^d`, with documented transformations to native domains.
-- [ ] Express all objectives as maximization problems.
-- [ ] Document output scaling, parameters, and known or numerical reference optima.
-- [ ] Keep the latent function separate from the observation-noise wrapper.
-- [ ] Support batched evaluation and an explicit dimension argument.
-- [ ] Keep Branin and Hartmann-3 as fixed-dimensional anchors.
-- [ ] Generate 2D plots and several informative slices for 3D functions.
-- [ ] Check known values, dimensional consistency, and repeatability.
+- [x] Use a common input domain of `[0, 1]^d`, with documented transformations to native domains.
+- [x] Express all objectives as maximization problems.
+- [x] Document output scaling, parameters, and known or numerical reference optima.
+- [x] Keep the latent function separate from the observation-noise wrapper.
+- [x] Support batched evaluation and an explicit dimension argument.
+- [x] Keep Branin and Hartmann-3 as fixed-dimensional anchors.
+- [x] Generate 2D plots and several informative slices for 3D functions.
+- [x] Check known values, dimensional consistency, and repeatability (33 Phase 2 tests passed).
 
 For Gaussian random fields, generate a field once and hold it fixed throughout a run. A **field seed** defines the landscape; an **optimizer seed** defines an optimization attempt. Do not resample the latent field at each query.
 
@@ -138,6 +142,8 @@ Document the field generator and its approximation. A finite spectral approximat
 **Deliverables:** `src/benchmarks.py`, `tests/test_benchmarks.py`, `docs/benchmarks.md`, and a reproducible gallery example.
 
 ## Phase 3: Implement five acquisition strategies
+
+An exploratory NumPy screen is recorded in `docs/phase3_characterization.md` and implemented in `experiments/phase3_characterization.py`. It studies Phase 3 search-policy and model-setting sensitivity, with simplified stopping diagnostics retained only as exploratory measurements. Treat its results as descriptive. It does **not** complete the planned Phase 3: the five BoTorch acquisition methods below are still the intended deliverable.
 
 Use the same surrogate specification, initial design, domain, evaluation budget, and recommendation rule across methods.
 

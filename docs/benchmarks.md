@@ -4,7 +4,7 @@
 
 Phase 2 builds a controlled set of landscapes for the project question: do Bayesian optimization stopping rules remain dependable when the objective changes, or do they stop too early on specific shapes? This phase constructs and validates the test problems; comparison of acquisition and stopping policies is later work.
 
-The core continuous bank has 24 cases: eleven landscape families in both 2D and 3D, plus Branin (2D) and Hartmann-3 (3D). Every core objective is a noise-free maximization function on the unit cube [0, 1]^d. Measurement noise should be added by a separate observation wrapper, never by changing the latent function. A separate 3x3 binary Ising Markov random field (MRF) is included as an auxiliary discrete system and is not counted among the 24 continuous cases.
+The core continuous bank has 24 cases: eleven landscape families in both 2D and 3D, plus Branin (2D) and Hartmann-3 (3D). Every core objective is a noise-free maximization function on the unit cube [0, 1]^d. Measurement noise should be added by a separate observation wrapper, never by changing the latent function. A separate 3x3 binary Ising Markov random field (MRF) is included as an **auxiliary discrete system**, not counted among the 24 core continuous cases.
 
 | Name | Main property tested | Best-known value |
 | --- | --- | --- |
@@ -24,11 +24,17 @@ The core continuous bank has 24 cases: eleven landscape families in both 2D and 
 
 ## Auxiliary structured-discrete system: Ising MRF
 
-`get_benchmark("mrf_ising_3x3", 9)` creates a fixed 3x3 binary pairwise MRF. Its nine variables are spins encoded as inputs in `{0,1}`. Mixed-sign pairwise couplings create frustrated loops, while small node fields break some symmetries.
+`get_benchmark("mrf_ising_3x3", 9)` creates a fixed 3x3 binary pairwise MRF. Its nine variables are spins `s_i ∈ {-1,+1}` (encoded as inputs `x_i ∈ {0,1}`), and its log-potential score is
 
-All `2^9 = 512` states are enumerable, so the exact MAP reference is available for retrospective scoring. BO searches the configuration-to-score function; it is not being used to infer the MRF distribution. This system must be reported separately from the 2D/3D continuous bank. A generic Euclidean kernel on the binary vector also does not automatically exploit the graph topology.
+```text
+score(s) = Σ_(i,j) J_ij s_i s_j + Σ_i h_i s_i.
+```
 
-The corresponding validation lives in `tests/test_mrf_benchmark.py`.
+The pair terms encode graph edges; mixed-sign couplings include frustrated loops, and small node fields break some symmetries. The corresponding probability model is proportional to `exp(score(s))`; its MAP state is therefore the maximizer of this score. This benchmark is deterministic once constructed. All `2^9 = 512` configurations are enumerable, so the MAP reference is exact and regret can be scored without giving unqueried labels to the optimizer.
+
+An MRF is a probability model with conditional-independence structure: a node is independent of non-neighbors once its neighbors are known. BO is not being used to infer the MRF distribution here; it is used to search the expensive configuration-to-score function. This is a discrete, structured extension and should be reported separately from the 2D/3D continuous cases. In particular, an ordinary RBF kernel on the binary vector does not automatically exploit the MRF graph topology.
+
+The MRF checks live in `tests/test_mrf_benchmark.py`. Phase 3 search-policy characterization is documented in `docs/phase3_characterization.md` and implemented by `experiments/phase3_characterization.py`.
 
 ## API and design decisions
 
@@ -42,9 +48,9 @@ The grf cases use a finite random Fourier approximation with 256 spectral compon
 
 ## Gallery and validation
 
-From the repository root, run `python -m examples.phase2_gallery`. It saves a 2D heatmap gallery and 3D slices with the third coordinate fixed at 0.25, 0.50, and 0.75 under `results/phase2/gallery/`. These plots explain geometry; BO policies must only receive the queried points and values.
+From the repository root, run python -m examples.phase2_gallery. It saves a 2D heatmap gallery and 3D slices with the third coordinate fixed at 0.5 under results/phase2/gallery. These plots explain geometry; BO policies must only receive the queried points and values.
 
-Run `python -m pytest -q tests/test_benchmarks.py tests/test_mrf_benchmark.py`. Tests cover all 24 continuous cases, scalar and batch evaluation, invalid inputs, known optima, unique registry entries, fixed-field reproducibility, the MRF binary state space, and the exact MAP reference. The gallery is generated from a script, not manually edited.
+Run pytest -q. Tests cover all 24 dimensions, scalar and batch evaluation, invalid inputs, known optima, unique registry entries, and fixed-field reproducibility. The gallery is generated from a script, not manually edited.
 
 Random-field and other numerical optima are references, not proofs of the continuous-domain maximum. Use a dense or scrambled Sobol catalogue plus independent searches to construct and save numerical references. State whether claims are over that finite catalogue or the continuous domain: a finite catalogue can miss a narrow peak entirely.
 
